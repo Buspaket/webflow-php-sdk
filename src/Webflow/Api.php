@@ -9,15 +9,15 @@ class Api
     const WEBFLOW_API_ENDPOINT = 'https://api.webflow.com';
     const WEBFLOW_API_USERAGENT = 'Expertlead Webflow PHP SDK (https://github.com/expertlead/webflow-php-sdk)';
 
-    private $client;
     private $token;
 
-    private $requests;
-    private $start;
-    private $finish;
+    private $version;
 
     private $cache = [];
 
+    /**
+     * @throws \Webflow\WebflowException
+     */
     public function __construct(
         $token,
         $version = '1.0.0'
@@ -28,10 +28,6 @@ class Api
 
         $this->token = $token;
         $this->version = $version;
-
-        $this->rateRemaining = 60;
-
-        return $this;
     }
 
     private function request(string $path, string $method, array $data = [])
@@ -74,6 +70,11 @@ class Api
     private function put($path, $data)
     {
         return $this->request($path, "PUT", $data);
+    }
+
+    private function patch($path, $data)
+    {
+        return $this->request($path, "PATCH", $data);
     }
 
     private function delete($path)
@@ -175,6 +176,13 @@ class Api
     public function updateItem(string $collectionId, string $itemId, array $fields, bool $live = false)
     {
         return $this->put("/collections/{$collectionId}/items/{$itemId}" . ($live ? "?live=true" : ""), [
+            'fields' => $fields,
+        ]);
+    }
+
+    public function patchItem(string $collectionId, string $itemId, array $fields, bool $live = false)
+    {
+        return $this->patch("/collections/{$collectionId}/items/{$itemId}" . ($live ? "?live=true" : ""), [
             'fields' => $fields,
         ]);
     }
